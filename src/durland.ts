@@ -145,7 +145,34 @@ class Shlyamsanie extends Modifier {
     }
 }
 
-class Idle extends Modifier {}
+class Idle extends Modifier {
+    modifyHealth(
+        intermediate: number,
+        durlander: Durlander,
+        action: Action,
+        location: Location
+    ): number {
+        return -0.5;
+    }
+    
+    modifyMoney(
+        intermediate: number,
+        durlander: Durlander,
+        action: Action,
+        location: Location
+    ): number {
+        return -0.5;
+    }
+    
+    modifyPsyche(
+        intermediate: number,
+        durlander: Durlander,
+        action: Action,
+        location: Location
+    ): number {
+        return -0.5;
+    }
+}
 
 class Mojor extends Durlander {
     private counter = 0;
