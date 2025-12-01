@@ -36,14 +36,14 @@ abstract class Durlander extends Modifier {
     health: number;
     money: number;
     psyche: number;
-    history: Step[];
+    //history: Step[];
     
     constructor() {
         super();
         this.health = 10;
         this.money = 10;
         this.psyche = 10;
-        this.history = [];
+        //this.history = [];
     }
 }
 
@@ -62,6 +62,7 @@ abstract class Location extends Modifier {
 
 // Конкретные классы действий
 class Zumbalstvo extends Modifier {
+    __type = "Zumbalstvo";
     modifyHealth(
         intermediate: number,
         durlander: Durlander,
@@ -91,6 +92,7 @@ class Zumbalstvo extends Modifier {
 }
 
 class Gulbonstvo extends Modifier {
+    __type = "Gulbonstvo";
     modifyHealth(
         intermediate: number,
         durlander: Durlander,
@@ -120,6 +122,7 @@ class Gulbonstvo extends Modifier {
 }
 
 class Shlyamsanie extends Modifier {
+    __type = "Shlyamsanie";
     modifyHealth(
         intermediate: number,
         durlander: Durlander,
@@ -148,12 +151,14 @@ class Shlyamsanie extends Modifier {
     }
 }
 
-class Idle extends Modifier {}
+class Idle extends Modifier {
+    __type = "Idle"
+}
 
 type Action = Zumbalstvo | Gulbonstvo | Shlyamsanie | Idle;
 
-class Step {
+/*class Step {
     durlander: Durlander;
     action: Action;
     location: Location;
-}
+}*/
