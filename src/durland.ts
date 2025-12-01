@@ -332,7 +332,11 @@ class Zheleznouhiy extends Durlander {
     }
 }
 
+//Местности. Поскольку локации напрямую не влияют на поведение
+//местностей, в модели они не учитываются
+
 class Balesburg extends Location {
+    constructor() { super(3, 1, 1); }
     modifyHealth(
         intermediate: number,
         durlander: Durlander,
@@ -344,6 +348,7 @@ class Balesburg extends Location {
 }
 
 class Dolbesburg extends Location {
+    constructor() { super(3, 1, 1); }
     modifyMoney(
         intermediate: number,
         durlander: Durlander,
@@ -369,6 +374,13 @@ class Dolbesburg extends Location {
 }
 
 class Kuramribs extends Location {
+    constructor() { super(1, 3, 1); }
+    //При заходе в локацию все сисяндры работают
+    //Состояния перещагружается после выхода из локации -
+    //"каждая сисяндра перестаёт работать... во втором и последующих интервалах нахождения в локации"
+    //Здесь реализуется трактование "Новый период нахождения - новый счётчик"
+    //Если подразумевается иное трактование, то можно его реализовать через поиск
+    //Последнего состояния Курамарибов в истории дурляндца, что не трудно реализовать.
     disabledSisandras = 0;
     modifyPsyche(
         intermediate: number,
@@ -377,10 +389,16 @@ class Kuramribs extends Location {
         location: Location
     ): number {
         let workingSisandras = this.numSisandras;
+        //Получаем предыдущую локацию для дурляндца
         let previousLocation = durlander.history.slice(-1)[0];
         if (previousLocation instanceof Kuramribs) {
+            //Поскольку дурляндец уже какое-то время в этой локации,
+            //получаем информацию сколько сисяндр уже перестало работать.
+            //Данная информация хранится в экземпляре класса с прошлого шага,
+            //выступающего в виде "снимка состояния"
             this.disabledSisandras = previousLocation.disabledSisandras;
             workingSisandras = this.numSisandras - this.disabledSisandras;
+            //Получаем, сколько из работавших сисяндр отключились на этом шаге
             this.disabledSisandras += successfulRolls(workingSisandras, 0.7);
             workingSisandras = this.numSisandras - this.disabledSisandras;
         }
@@ -392,6 +410,7 @@ class Kuramribs extends Location {
 }
 
 class PuntaPelicana extends Location {
+    constructor() { super(1, 3, 1); }
     modifyPsyche(
         intermediate: number,
         durlander: Durlander,
@@ -421,6 +440,7 @@ class PuntaPelicana extends Location {
 }
 
 class Shrinavas extends Location {
+    constructor() { super(1, 1, 3); }
     modifyHealth(
         intermediate: number,
         durlander: Durlander,
@@ -435,6 +455,7 @@ class Shrinavas extends Location {
 }
 
 class HareKrishi extends Location {
+    constructor() { super(1, 1, 3); }
     modifyHealth(
         intermediate: number,
         durlander: Durlander,
