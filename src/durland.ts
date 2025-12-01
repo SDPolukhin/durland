@@ -510,3 +510,113 @@ function successfulRollsMultiplier(
 ): number {
     return successfulRolls(n, probabilityOfZero) / n;
 }
+
+type DurlanderConstructor = new () => Durlander;
+type LocationConstructor = new () => Location;
+type ActionConstructor = new () => Action;
+// Массивы с конструкторами классов. При добавлении нового класса
+// для использования его в симуляции добавить в список
+const ALL_DURLANDERS: DurlanderConstructor[] = [
+    Mojor,
+    Nischebrod,
+    Soyeviy,
+    Prosvetlenniy,
+    Drocent,
+    Zheleznouhiy
+] as const;
+
+const ALL_LOCATIONS: LocationConstructor[] = [
+    Balesburg,
+    Dolbesburg,
+    Kuramribs,
+    PuntaPelicana,
+    Shrinavas,
+    HareKrishi
+] as const;
+
+const ALL_ACTIONS: ActionConstructor[] = [
+    Zumbalstvo,
+    Gulbonstvo,
+    Shlyamsanie,
+    Idle
+] as const;
+
+function getRandomElement<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)]!;
+}
+
+function runSimulation(maxSteps: number = 100) {
+    // Создаем случайного дурляндца
+    const DurlanderClass = getRandomElement(ALL_DURLANDERS);
+    const durlander = new DurlanderClass();
+    
+    console.log(`=== Начало симуляции ===`);
+    console.log(`Создан дурляндец: ${durlander.constructor.name}`);
+    console.log(`Начальное состояние: Здоровье=${durlander.health}, Деньги=${durlander.money}, Удовлетворенность=${durlander.psyche}`);
+    
+    let step = 0;
+    
+    // Основной цикл симуляции
+    while (step < maxSteps) {
+        step++;
+        const LocationClass = getRandomElement(ALL_LOCATIONS);
+        const ActionClass = getRandomElement(ALL_ACTIONS);
+        
+        const location = new LocationClass();
+        const action = new ActionClass();    
+        
+        // Вычисляем изменения показателей (порядок: действие -> локация -> дурляндец)
+        let healthChange = 0;
+        let moneyChange = 0;
+        let psycheChange = 0;
+        
+        // Применяем модификаторы
+        healthChange = action.modifyHealth(healthChange, durlander, action, location);
+        moneyChange = action.modifyMoney(moneyChange, durlander, action, location);
+        psycheChange = action.modifyPsyche(psycheChange, durlander, action, location);
+        
+        healthChange = location.modifyHealth(healthChange, durlander, action, location);
+        moneyChange = location.modifyMoney(moneyChange, durlander, action, location);
+        psycheChange = location.modifyPsyche(psycheChange, durlander, action, location);
+        
+        healthChange = durlander.modifyHealth(healthChange, durlander, action, location);
+        moneyChange = durlander.modifyMoney(moneyChange, durlander, action, location);
+        psycheChange = durlander.modifyPsyche(psycheChange, durlander, action, location);
+        
+        durlander.health += healthChange;
+        durlander.money += moneyChange;
+        durlander.psyche += psycheChange;
+        
+        // Создаем запись о шаге и добавляем в историю
+        const stepRecord = new Step(durlander, action, location);
+        durlander.history.push(stepRecord);
+        
+        console.log(`\nШаг ${step}:`);
+        console.log(`  Локация: ${location.constructor.name} (Слесандры=${location.numSlesandras}, Сисяндры=${location.numSisandras}, Чучундры=${location.numChuchundras})`);
+        console.log(`  Действие: ${action.constructor.name}`);
+        console.log(`  Изменения: Здоровье=${healthChange.toFixed(2)}, Деньги=${moneyChange.toFixed(2)}, Удовлетворенность=${psycheChange.toFixed(2)}`);
+        console.log(`  Текущее состояние: Здоровье=${durlander.health.toFixed(2)}, Деньги=${durlander.money.toFixed(2)}, Удовлетворенность=${durlander.psyche.toFixed(2)}`);
+        
+        let causeOfDeath: string | null = null;
+        if (durlander.health <= 0) {
+            causeOfDeath = "болезнь (здоровье ≤ 0)";
+        } else if (durlander.money <= 0) {
+            causeOfDeath = "голод (деньги ≤ 0)";
+        } else if (durlander.psyche <= 0) {
+            causeOfDeath = "депрессия (удовлетворенность ≤ 0)";
+        }
+        
+        if (causeOfDeath) {
+            console.log(`\n=== Конец симуляции ===`);
+            console.log(`Дурляндец погиб на шаге ${step} от ${causeOfDeath}`);
+            return;
+        }
+    }
+    
+    console.log(`\n=== Конец симуляции ===`);
+    console.log(`Достигнуто максимальное количество шагов (${maxSteps})`);
+    return;
+}
+
+console.log("Запуск одной симуляции:");
+runSimulation();
